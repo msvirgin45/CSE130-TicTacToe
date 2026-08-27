@@ -1,0 +1,179 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+/*
+----------------------------------------------------]
+Author: Matt 
+Course: CSE 130 – Introduction to C Programming 
+Lab: #9 Tic-Tac-Toe Creation 
+Date: April 2nd 2026 
+
+Description: 
+This program has the user play againest a CPU 
+in a Tic-Tac-Toe game. The game does not allow 
+for replay ability but it is a easy to follow 
+program that is responsive from many inputs. 
+----------------------------------------------------]
+*/
+
+class TicTacToe {
+	char currentPlayer;
+	char board[3][3];
+
+public:
+	TicTacToe() {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				board[i][j] = ' ';
+			}
+
+		}
+		srand(time(0));
+		int iRand = rand() % 2;
+		currentPlayer = (iRand == 0) ? 'X' : 'O';
+		cout << "Player " << currentPlayer << " goes first.\n";
+		displayBoard();
+	}
+
+	void displayBoard() {
+		cout << "\n";
+		for (int i = 0; i < 3; i++) {
+			cout << " ";
+			for (int j = 0; j < 3; j++) {
+				cout << board[i][j];
+				if (j < 2) cout << " | ";
+			}
+			cout << "\n";
+			if (i < 2) cout << "---+---+---\n";
+		}
+		cout << "\n";
+	}
+
+	bool checkWin() {
+		for (int i = 0; i < 3; i++) {
+			if (board[i][0] != ' ' &&
+				board[i][0] == board[i][1] &&
+				board[i][1] == board[i][2])
+				return true;
+			if (board[0][i] != ' ' &&
+				board[0][i] == board[1][i] &&
+				board[1][i] == board[2][i])
+				return true;
+		}
+		if (board[0][0] != ' ' &&
+			board[0][0] == board[1][1] &&
+			board[1][1] == board[2][2])
+			return true;
+		if (board[0][2] != ' ' &&
+			board[0][2] == board[1][1] &&
+			board[1][1] == board[2][0])
+			return true;
+		return false;
+	}
+
+	bool isDraw() {
+		for (int i = 0; i < 3; i++)
+			for (int j = 0; j < 3; j++)
+				if (board[i][j] == ' ')
+					return false;
+
+		return !checkWin();
+	}
+
+	char getCurrentPlayer() {
+		return currentPlayer;
+	}
+
+	void userNextMovement() {
+		int row, col;
+		while (true) {
+			cout << "Enter row (1-3): ";
+			cin >> row;
+			cout << "Enter column (1-3): ";
+			cin >> col;
+			row--;
+			col--;
+			if (row < 0 || row > 2 || col < 0 || col > 2) {
+				cout << "Invalid position. Try again.\n";
+			}
+			else if (board[row][col] != ' ') {
+				cout << "Cell already occupied. Try again.\n";
+			}
+			else {
+				board[row][col] = 'X';
+				break;
+			}
+		}
+		displayBoard();
+	}
+
+	void computerNextMovement() {
+		int row, col;
+		do {
+			row = rand() % 3;
+			col = rand() % 3;
+		} while (board[row][col] != ' ');
+		cout << "Computer chooses: " << row + 1 << " " << col + 1 << endl;
+		board[row][col] = 'O';
+		displayBoard();
+	}
+	void switchPlayer() {
+		currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+	}
+};
+
+class Player {
+	string name;
+	float score;
+public:
+	Player(string _name) {
+		name = _name;
+		score = 0;
+	}
+	string getName() {
+		return name;
+	}
+	void increaseScore() {
+		score++;
+	}
+	float getScore() {
+		return score;
+	}
+};
+
+int main() {
+	TicTacToe game;
+	while (!game.checkWin() && !game.isDraw()) {
+		if (game.getCurrentPlayer() == 'X') {
+			game.userNextMovement();
+		}
+		else {
+			game.computerNextMovement();
+		}
+
+		if (!game.checkWin()) {
+			game.switchPlayer();
+		}
+	}
+
+	if (game.checkWin()) {
+		if (game.getCurrentPlayer() == 'X') {
+			cout << "You win!\n";
+		}
+		else {
+			cout << "Computer wins!\n";
+		}
+	}
+	else {
+		cout << "It's a draw!\n";
+	}
+
+	//Player p("Player1");
+	//cout << p.getName() << endl;
+	//Player p2("Player2");
+	//cout << p2.getName() << endl;
+	//Player p3("Player3");
+	//cout << p3.getName() << endl;
+	return 0;
+}
