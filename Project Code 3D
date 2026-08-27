@@ -1,0 +1,194 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+/*
+Name: Matthew Virgin
+Course: CSE CSE 130 - Introduction to C Programming
+Lab: #10: Tic-Tac-Toe Creation 3D
+Date: April 9th 2026
+Description:
+This program is a recreation of the Lab 9
+Tic-Tac-Toe code but created in a attempted
+3D space. It hs easy to follow inputs and
+is mostly responsive with the 3-in-a-row
+concept between each panel of board.
+*/
+
+using namespace std;
+
+class TicTacToe {
+protected:
+	char currentPlayer;
+	char board[3][3][3];
+
+public:
+	TicTacToe() {
+		for (int z = 0; z < 3; z++)
+			for (int i = 0; i < 3; i++)
+				for (int j = 0; j < 3; j++)
+					board[z][i][j] = ' ';
+		srand(time(0));
+		currentPlayer = (rand() % 2 == 0) ? 'X' : 'O';
+		cout << "Player " << currentPlayer << " goes first.\n";
+	}
+
+	void switchPlayer() {
+		currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+	}
+
+	char getCurrentPlayer() {
+		return currentPlayer;
+	}
+};
+
+class TicTacToe3D : public TicTacToe {
+public:
+	void displayBoard() {
+		for (int z = 0; z < 3; z++) {
+			cout << "\nLayer " << z + 1 << ":\n";
+			for (int i = 0; i < 3; i++) {
+				cout << " ";
+				for (int j = 0; j < 3; j++) {
+					cout << board[z][i][j];
+					if (j < 2) cout << " | ";
+				}
+				cout << "\n";
+				if (i < 2) cout << "---+---+---\n";
+			}
+		}
+		cout << endl;
+	}
+
+	bool isValidMove(int z, int r, int c) {
+		return z >= 0 && z < 3 &&
+			r >= 0 && r < 3 &&
+			c >= 0 && c < 3 &&
+			board[z][r][c] == ' ';
+	}
+
+	void userMove() {
+		int z, r, c;
+		while (true) {
+			cout << "Enter Layer Row Col (1-3 each): ";
+			cin >> z >> r >> c;
+			z--; r--; c--;
+			if (isValidMove(z, r, c)) {
+				board[z][r][c] = 'X';
+				break;
+
+			}
+			else {
+				cout << "Invalid move! Try again.\n";
+			}
+		}
+	}
+
+	void cpuMove() {
+		int z, r, c;
+		do {
+			z = rand() % 3;
+			r = rand() % 3;
+			c = rand() % 3;
+		} while (!isValidMove(z, r, c));
+		cout << "Computer chose: "
+			<< z + 1 << " " << r + 1 << " " << c + 1 << endl;
+		board[z][r][c] = 'O';
+	}
+
+	bool isFull() {
+		for (int z = 0; z < 3; z++)
+			for (int i = 0; i < 3; i++)
+				for (int j = 0; j < 3; j++)
+					if (board[z][i][j] == ' ')
+						return false;
+		return true;
+	}
+
+	int countLines(char p) {
+		int count = 0;
+		for (int z = 0; z < 3; z++) {
+			for (int i = 0; i < 3; i++) {
+				if (board[z][i][0] == p && board[z][i][1] == p && board[z][i][2] == p)
+					count++;
+				if (board[z][0][i] == p && board[z][1][i] == p && board[z][2][i] == p)
+					count++;
+			}
+		}
+
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (board[0][i][j] == p &&
+					board[1][i][j] == p &&
+					board[2][i][j] == p)
+					count++;
+			}
+		}
+
+		for (int z = 0; z < 3; z++) {
+			if (board[z][0][0] == p && board[z][1][1] == p && board[z][2][2] == p)
+				count++;
+			if (board[z][0][2] == p && board[z][1][1] == p && board[z][2][0] == p)
+				count++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			if (board[0][i][0] == p &&
+				board[1][i][1] == p &&
+				board[2][i][2] == p)
+				count++;
+			if (board[0][i][2] == p &&
+				board[1][i][1] == p &&
+				board[2][i][0] == p)
+				count++;
+		}
+
+		for (int j = 0; j < 3; j++) {
+			if (board[0][0][j] == p &&
+				board[1][1][j] == p &&
+				board[2][2][j] == p)
+				count++;
+			if (board[0][2][j] == p &&
+				board[1][1][j] == p &&
+				board[2][0][j] == p)
+				count++;
+		}
+
+		if (board[0][0][0] == p && board[1][1][1] == p && board[2][2][2] == p)
+			count++;
+		if (board[0][0][2] == p && board[1][1][1] == p && board[2][2][0] == p)
+			count++;
+		if (board[0][2][0] == p && board[1][1][1] == p && board[2][0][2] == p)
+			count++;
+		if (board[0][2][2] == p && board[1][1][1] == p && board[2][0][0] == p)
+			count++;
+		return count;
+	}
+};
+
+int main() {
+	TicTacToe3D game;
+	while (!game.isFull()) {
+		game.displayBoard();
+		if (game.getCurrentPlayer() == 'X') {
+			game.userMove();
+		}
+		else {
+			game.cpuMove();
+		}
+		game.switchPlayer();
+	}
+	cout << "\nFinal Board:";
+	game.displayBoard();
+	int playerScore = game.countLines('X');
+	int cpuScore = game.countLines('O');
+	cout << "\nYour 3-in-a-rows: " << playerScore << endl;
+	cout << "Computer 3-in-a-rows: " << cpuScore << endl;
+	if (playerScore > cpuScore)
+		cout << "You win!\n";
+	else if (cpuScore > playerScore)
+		cout << "Computer wins!\n";
+	else
+		cout << "It's a tie!\n";
+	return 0;
+}
